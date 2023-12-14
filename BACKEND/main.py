@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
-import Nltk
+import nltk
 
 # Create a FastAPI instance
 app = FastAPI()
