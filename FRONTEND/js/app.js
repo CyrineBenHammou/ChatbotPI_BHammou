@@ -23,7 +23,7 @@ function ChatBot(){
       method: 'POST',
       headers: myHeaders,
       body: raw,
-      redirect: 'follow'
+      // redirect: 'follow'
     };
     
     fetch("http://127.0.0.1:8000/analyse", requestOptions)
