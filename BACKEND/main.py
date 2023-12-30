@@ -8,7 +8,7 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import string
-#import openai  
+import openai  
 
 # Create a FastAPI instance
 app = FastAPI()
@@ -42,7 +42,7 @@ class AnalyseTextInput(BaseModel):
 @app.post("/query_openai")
 def QueryOpenAI(query:str):
     
-  #  openai.api_key = "#"
+    openai.api_key = "#" # has to be replaced with a openai token
     client = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -52,7 +52,7 @@ def QueryOpenAI(query:str):
     )   
 
     response= client['choices'][0]['message']['content']
-    print(response)
+    print("----- OPEN AI RESPONSE: " + response)
     return response
 
 
@@ -61,28 +61,25 @@ def analyse_endpoint(analyse_input: AnalyseTextInput):
 
     # Convert to lowercasewer()
     texte = analyse_input.texte.lower()
-
     # Tokenization
     tokens = nltk.word_tokenize(texte)
-
-     # Remove stopwords and punctuation
+    # Remove stopwords and punctuation
+    # Remove stopwords and punctuation
     stop_words = set(stopwords.words('english'))
     punctuation = set(string.punctuation)
-    
     tokens = [word for word in tokens if word not in stop_words and word not in punctuation]
-
     # Lemmatization
     lemmatizer = WordNetLemmatizer()
     lemmatized_words = [lemmatizer.lemmatize(word) for word in tokens]
-    print(lemmatized_words)
-
-    # Add a space before the additional phrase
+    # print(lemmatized_words)
+    # Add a space before the additional phrase 
     query = " ".join(lemmatized_words) + " in context of computer science"
 
+    # THIS IS THE PROJECT OF NINA EL BNINA
+
     response =QueryOpenAI(query)
-    return {"msg": query}
+    return {"msg": response}
 
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
-
