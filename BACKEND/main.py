@@ -8,6 +8,7 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import string
+#import openai  
 
 # Create a FastAPI instance
 app = FastAPI()
@@ -38,42 +39,49 @@ def formeter_reponse(text:str):
 class AnalyseTextInput(BaseModel):
     texte: str
 
-# Define a POST endpoint at the path "/analyse"
+@app.post("/query_openai")
+def QueryOpenAI(query:str):
+    
+  #  openai.api_key = "#"
+    client = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+        {"role": "system", "content": "You are a computer science university teacher"},
+        {"role": "user", "content": query}
+        ]   
+    )   
+
+    response= client['choices'][0]['message']['content']
+    print(response)
+    return response
+
+
 @app.post("/analyse")
 def analyse_endpoint(analyse_input: AnalyseTextInput):
 
-    print(analyse_input)
-    #miniscule
-    texte=(analyse_input.texte).lower()
-    #ponctuation
-    texte = ' '.join([char for char in texte if char not in string.punctuation])
-    #texte.translate(str.maketrans("", "", string.punctuation))
+    # Convert to lowercasewer()
+    texte = analyse_input.texte.lower()
 
-    #erreur:Faute d'orthographe
-    """blob = TextBlob(texte)
-    texte = blob.correct()
-    print(texte.words)
-    print(type(texte.words))"""
+    # Tokenization
+    tokens = nltk.word_tokenize(texte)
 
-    #tokenisation
-    tokens=nltk.word_tokenize(texte)
-    print(tokens)
-
-    #stopwords
+     # Remove stopwords and punctuation
     stop_words = set(stopwords.words('english'))
-    tokens = [word for word in tokens if word not in stop_words]
-    print(tokens)
+    punctuation = set(string.punctuation)
+    
+    tokens = [word for word in tokens if word not in stop_words and word not in punctuation]
 
-    #Stemmer & Lemmatization
-    
-    #porter = PorterStemmer()
+    # Lemmatization
     lemmatizer = WordNetLemmatizer()
-    
-    #stemmed_words = [porter.stem(word) for word in tokens]
     lemmatized_words = [lemmatizer.lemmatize(word) for word in tokens]
     print(lemmatized_words)
 
-    return {"msg": analyse_input}
+    # Add a space before the additional phrase
+    query = " ".join(lemmatized_words) + " in context of computer science"
+
+    response =QueryOpenAI(query)
+    return {"msg": query}
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
