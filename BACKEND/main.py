@@ -75,8 +75,6 @@ def analyse_endpoint(analyse_input: AnalyseTextInput):
     # Add a space before the additional phrase 
     query = " ".join(lemmatized_words) + " in context of computer science"
 
-    # THIS IS THE PROJECT OF NINA EL BNINA
-
     response =QueryOpenAI(query)
     return {"msg": response}
 
